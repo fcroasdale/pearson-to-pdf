@@ -3,6 +3,7 @@ import time
 import pyperclip
 import os
 import argparse
+import re
 import glob
 import img2pdf
 from multiprocessing.pool import ThreadPool
@@ -13,7 +14,7 @@ def download_pages(pageNums=1801):
     urls = (url_template.format(i=i) for i in range(48, pageNums + 1))
     time.sleep(5)
     for url in urls:
-        ######################### change this to the x,y of your url input --- so fukin jank ik 
+        ######################### change this to the x,y of your url input --- so fukin gank ik 
         pyautogui.click(653, 98)
         pyperclip.copy(url)
         pyautogui.hotkey('command', 'v')
@@ -29,11 +30,12 @@ def find_missing_pages(directory):
     missing_pages = [i for i in range(page_numbers[-1] + 1) if i not in page_numbers]
     return missing_pages
 
+
 def convert_to_pdf(directory):
     os.chdir(directory)
-    for filename in os.listdir():
-        name, ext = os.path.splitext(filename)
-        os.rename(filename, f"{name}.png")
+    # for filename in os.listdir():
+    #     name, ext = os.path.splitext(filename)
+    #     os.rename(filename, f"{name}.png")
     file_name = os.path.basename(directory)
     pdf_path = f"{directory}/{file_name}.pdf"
     png_files = sorted(glob.glob(f"{directory}/*.png"))
@@ -41,10 +43,30 @@ def convert_to_pdf(directory):
         f.write(img2pdf.convert([str(png_file) for png_file in png_files]))
     print("Saved pdf successfully")
 
+
+def natural_sort_key(s):
+    return [int(text) if text.isdigit() else text.lower() for text in re.split('([0-9]+)', s)]
+
+
+def convert_to_pdf(download_dir):
+    os.chdir(download_dir)
+    for filename in os.listdir():
+        name, ext = os.path.splitext(filename)
+        os.rename(filename, f"{name}.png")
+    
+    file_name = os.path.basename(download_dir)
+    pdf_path = f"{download_dir}/{file_name}.pdf"
+    
+    png_files = glob.glob(f"{download_dir}/*.png")
+    png_files.sort(key=natural_sort_key)  # Sort using the natural_sort_key function
+    
+    with open(pdf_path, "wb") as f:
+        f.write(img2pdf.convert([str(png_file) for png_file in png_files]))
+
 if __name__ == "__main__":
     # You can add argparse here to get pageNums, directory, and directory from the command line
     pageNums = 1801
-    directory = '/book'
+    directory = '/Users/felix/Projects/Pearson-PDF-Downloader/book'
     
     # Download pages
     download_pages(pageNums)
