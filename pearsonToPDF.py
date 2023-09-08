@@ -13,7 +13,7 @@ def download_pages(pageNums=1801):
     urls = (url_template.format(i=i) for i in range(48, pageNums + 1))
     time.sleep(5)
     for url in urls:
-        ######################### change this to the x,y of your url input --- so fukin gank ik 
+        ######################### change this to the x,y of your url input --- so fukin jank ik 
         pyautogui.click(653, 98)
         pyperclip.copy(url)
         pyautogui.hotkey('command', 'v')
